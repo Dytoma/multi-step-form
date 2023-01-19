@@ -30,9 +30,14 @@ Users should be able to:
 
 ### Screenshot
 
-![](./screenshot.jpg)
+![](/step1.png)
+![](./step2.png)
+![](./step3.png)
+![](./step4.png)
+![](./confirm.png)
 
-This is a screenshot of my solution. 
+
+These are some screenshots of my solution. 
 
 ### Links
 
