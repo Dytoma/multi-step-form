@@ -42,7 +42,6 @@ const Step1 = () => {
 
 
   const validate = (values) => {
-    const regex = /(^\+\d)(\d{3})(\d{3})(\d{3})(\d+)/
     const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     const errors = {};
 
@@ -56,8 +55,6 @@ const Step1 = () => {
     }
     if (!values.number) {
       errors.number = "This field is required"
-    } else if (!regex.test(values.number)) {
-      errors.number = "This is not a number";
     }
     return errors
   }
@@ -94,7 +91,18 @@ const Step1 = () => {
                 <label htmlFor="number" className={labelStyle}>Phone Number</label>
                 <p className={errStyle}>{formErrors.number}</p>
               </div>
-              <input type="tel" name="number" id="number" placeholder='e.g. +1 234 567 890' className={inputStyle} value={formValues.number} onChange={handleChange}/>
+              <input type="tel" name="number" id="number" placeholder='e.g. +1 234 567 890' className={inputStyle} value={formValues.number} onChange={handleChange} onKeyUp={(e) => {
+                const inputValue = e.target.value.replaceAll(" ", "");
+                if (e.target.value.length > 10) {
+                  e.target.value = inputValue.replace(/(\d{1})(\d{2})(\d{3})(\d{4})(\d+)/, '$1 $2 $3 $4 $5')
+                } else if (e.target.value.length > 6) {
+                  e.target.value = inputValue.replace(/(\d{3})(\d{3})(\d+)/, '$1 $2 $3')
+                } else if (e.target.value.length > 8) {
+                  e.target.value = inputValue.replace(/(\d{2})(\d{2})(\d{2})(\d+)/, '$1 $2 $3 $4')
+                } else if (e.target.value.length > 4) {
+                  e.target.value = inputValue.replace(/(\d{3})(\d+)/, '$1 $2')
+                }
+              }} />
             </div>
 
           </div>
