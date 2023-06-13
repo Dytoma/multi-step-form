@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../../App';
 
 const inputStyle = `block md:py-[14px] py-2 md:pl-4 pl-4 border-coolGray border-2 rounded-[8px] w-full text-base text-marineBlue font-normal hover:border-pastelBlue focus:border-pastelBlue`;
@@ -7,51 +7,40 @@ const labelStyle = 'text-marineBlue text-sm md:text-base font-normal leading-[18
 const errStyle = 'text-strawberryRed text-sm md:text-base font-normal leading-[18px]';
 
 const Step1 = () => {
+  const navigate = useNavigate();
+
   const initialValues = {
     name: "",
     email: "",
     number: ""
   }
-  
+
   const [formValues, setFormValues] = useState(initialValues);
   const [formErrors, setFormErrors] = useState({});
   const [isSubmit, setIsSubmit] = useState(false);
 
-  const {setPageActive} = useContext(AppContext)
+  const { setPageActive } = useContext(AppContext)
 
   const handleChange = (e) => {
-    const {name, value} = e.target
+    const { name, value } = e.target;
     setFormValues({
       ...formValues,
       [name]: value
-    })
-    console.log(formValues);
-  }
-  const handleSubmit = (e) => {
-    e.preventDefault();
+    });
     setFormErrors(validate(formValues));
-    setIsSubmit(true);
   }
-
-  useEffect(() => {
-    console.log(formErrors);
-    if(Object.keys(formErrors).length === 0 && isSubmit) {
-      console.log(formValues)
-    }
-  })
-
 
   const validate = (values) => {
     const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     const errors = {};
 
-    if(!values.name) {
+    if (!values.name) {
       errors.name = "Name cannot be empty";
     }
-    if(!values.email) {
+    if (!values.email) {
       errors.email = "Email cannot be empty";
     } else if (!emailRegex.test(values.email)) {
-      errors.email = "Looks like this is not an email"
+      errors.email = "Looks like this is not an email address"
     }
     if (!values.number) {
       errors.number = "This field is required"
@@ -59,11 +48,39 @@ const Step1 = () => {
     return errors
   }
 
+  //handling the actions when the form is submitted
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setFormErrors(validate(formValues));
+    setIsSubmit(true);
+
+    if (!formErrors.name && !formErrors.email && !formErrors.number && isSubmit) {
+      navigate('/plan');
+      setPageActive('plan');
+    }
+  }
+
+  useEffect(() => {
+    const saved = localStorage.getItem('value');
+
+    const savedValues = JSON.parse(saved);
+    setFormValues(savedValues);
+  }, [])
+
+
+  useEffect(() => {
+
+    localStorage.setItem('value', JSON.stringify(formValues))
+
+  }, [formValues])
+
+
+
   return (
-    
+
     <div>
       <div>
-        <form action="" onSubmit={handleSubmit} className='flex justify-center md:block'>
+        <form onSubmit={handleSubmit} className='flex justify-center md:block'>
           <div className='w-11/12 md:w-auto mx-auto bg-white absolute top-[100px] md:static p-5 md:p-0 rounded-md drop-shadow-md md:drop-shadow-none'>
             <div className='md:mb-10 mb-7'>
               <h1 className=' text-marineBlue font-bold md:text-[30px] md:leading-[34px] pb-3'>Personal info</h1>
@@ -75,7 +92,7 @@ const Step1 = () => {
                 <label htmlFor="name" className={labelStyle}>Name</label>
                 <p className={errStyle}>{formErrors.name}</p>
               </div>
-              <input type="text" name="name" id="name" placeholder='e.g. Stephen King' className={inputStyle} value={formValues.name} onChange={handleChange}/>
+              <input type="text" name="name" id="name" placeholder='e.g. Stephen King' className={inputStyle} value={formValues.name} onChange={handleChange} />
             </div>
 
             <div className='mb-6'>
@@ -83,7 +100,7 @@ const Step1 = () => {
                 <label htmlFor="email" className={labelStyle}>Email Address</label>
                 <p className={errStyle}>{formErrors.email}</p>
               </div>
-              <input type="email" name="email" id="email" placeholder='e.g. stephenking@lorem.com' className={inputStyle} value={formValues.email} onChange={handleChange}/>
+              <input type="email" name="email" id="email" placeholder='e.g. stephenking@lorem.com' className={inputStyle} value={formValues.email} onChange={handleChange} />
             </div>
 
             <div className=''>
@@ -108,13 +125,12 @@ const Step1 = () => {
           </div>
 
           <div className='md:mt-[93px] flex justify-end fixed left-0 right-0 bottom-0 md:static h-[72px] p-4 md:p-0 bg-white'>
-            {Object.keys(formErrors).length === 0 && isSubmit ? (
-              <Link to="/plan">
-              <button type='submit' className='bg-marineBlue py-2 md:py-[15px] px-4 md:px-6 text-magnolia rounded-lg hover:opacity-90 focus:opacity-90 text-base md:text-xl' onClick={() => {setPageActive('plan')}}>Next Step</button>
-              </Link>
-            ) : (
-              <button type='submit' className='bg-marineBlue py-2 md:py-[15px] px-4 md:px-6 text-magnolia rounded-lg hover:opacity-90 focus:opacity-90 text-base md:text-xl'>Next Step</button>
-            )}
+
+            <button
+              type='submit'
+              className='bg-marineBlue py-2 md:py-[15px] px-4 md:px-6 text-magnolia rounded-lg hover:opacity-90 focus:opacity-90 text-base md:text-xl'
+            >Next Step</button>
+
           </div>
         </form>
       </div>
